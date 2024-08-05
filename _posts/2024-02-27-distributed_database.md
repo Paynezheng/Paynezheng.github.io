@@ -3,6 +3,7 @@ title: 分布式数据库概述
 date: 2024-02-27 20:00:00 +0800
 categories: [Tech, Database]
 tags: [database, distributed]     # TAG names should always be lowercase
+description: 分布式系统的背景，架构，分布式存储和事务.
 ---
 
 ## 概述
@@ -34,59 +35,47 @@ tags: [database, distributed]     # TAG names should always be lowercase
 > 为什么写入需要一致性协议:
 如果等待所有备机的写入，将出现木桶效应，即最慢的机器将会更大地影响写入的性能。
 
-<p align="center">
-  <br>
-  <img src="assets/img/posts/2024-02-27-distributed_database/image1.png" alt="一主多备">
-  <br>
-  <p align="center" style="font-size: medium;"><em>一主多备架构</em></p>
-  <br>
-</p>
+
+<div style="text-align: center;">
+  <img src="assets/img/posts/2024-02-27-distributed_database/image1.png" alt="一主多备架构" style="display: block; margin: 0 auto;">
+  <p style="font-size: medium;"><em>一主多备架构</em></p>
+</div>
 
 #### 多主多写（集群式）
 每个数据库节点都持有数据库的一部分分片，并支持本节点上数据的读写。
 如果在一个节点上读写其他节点的数据，那就需要从其他节点同步数据到本节点上。
 数据量大的时候，扩展性比较差。
 
-<p align="center">
-  <br>
-  <img src="assets/img/posts/2024-02-27-distributed_database/image5.png" alt="多主多写">
-  <br>
-  <p align="center" style="font-size: medium;"><em>多主多写架构</em></p>
-  <br>
-</p>
+<div style="text-align: center;">
+  <img src="assets/img/posts/2024-02-27-distributed_database/image5.png" alt="多主多写" style="display: block; margin: 0 auto;">
+  <p style="font-size: medium;"><em>多主多写</em></p>
+</div>
 
 #### 分库分表中间件
 搭建于多台单机数据库之上，通过中间件负责SQL转发和结果汇聚。
 问题：
   1. 中间件只处理了分库分表和转发，很难去做并发控制
   2. 做不了强一致性（实时一致性）。没有全局时间戳，每个数据库节点时间戳都不一致。
-<p align="center">
-  <br>
-  <img src="assets/img/posts/2024-02-27-distributed_database/image2.png" alt="分库分表">
-  <br>
-  <p align="center" style="font-size: medium;"><em>分库分表架构</em></p>
-  <br>
-</p>
+
+<div style="text-align: center;">
+  <img src="assets/img/posts/2024-02-27-distributed_database/image2.png" alt="分库分表" style="display: block; margin: 0 auto;">
+  <p style="font-size: medium;"><em>分库分表</em></p>
+</div>
 
 #### 原生分布式数据库
 节点间无共享架构，shared-nothing，分片间多写多读。每一个分片类似一主多备，一写多读的形式。
-<p align="center">
-  <br>
-  <img src="assets/img/posts/2024-02-27-distributed_database/image3.png" alt="原生分布式">
-  <br>
-  <p align="center" style="font-size: medium;"><em>原生分布式架构</em></p>
-  <br>
-</p>
+
+<div style="text-align: center;">
+  <img src="assets/img/posts/2024-02-27-distributed_database/image3.png" alt="原生分布式" style="display: block; margin: 0 auto;">
+  <p style="font-size: medium;"><em>原生分布式</em></p>
+</div>
 
 #### 对比
 
-<p align="center">
-  <br>
-  <img src="assets/img/posts/2024-02-27-distributed_database/image4.png" alt="原生分布式">
-  <br>
-  <p align="center" style="font-size: medium;"><em>原生分布式架构</em></p>
-  <br>
-</p>
+<div style="text-align: center;">
+  <img src="assets/img/posts/2024-02-27-distributed_database/image4.png" alt="不同架构对比" style="display: block; margin: 0 auto;">
+  <p style="font-size: medium;"><em>不同架构对比</em></p>
+</div>
 
 - 原生分布式：shared nothing，数据分片，计算移动；
 - 多写多读集群式：shared storage，页面划分，数据移动；
@@ -108,23 +97,18 @@ tags: [database, distributed]     # TAG names should always be lowercase
 - 多分片表：数据划分不同分片，每个节点存储一个分片，例如表A。
 
 下图展示了在云原生数据库架构下的不同类型的表的数据分布：
-<p align="center">
-  <br>
-  <img src="assets/img/posts/2024-02-27-distributed_database/image6.png" alt="表的数据分布">
-  <br>
-  <p align="center" style="font-size: medium;"><em>表的数据分布</em></p>
-  <br>
-</p>
+
+<div style="text-align: center;">
+  <img src="assets/img/posts/2024-02-27-distributed_database/image6.png" alt="表的数据分布" style="display: block; margin: 0 auto;">
+  <p style="font-size: medium;"><em>表的数据分布</em></p>
+</div>
 
 #### 分布式存储方式对比
 
-<p align="center">
-  <br>
-  <img src="assets/img/posts/2024-02-27-distributed_database/image7.png" alt="不同分布方式对比">
-  <br>
-  <p align="center" style="font-size: medium;"><em>不同分布方式对比</em></p>
-  <br>
-</p>
+<div style="text-align: center;">
+  <img src="assets/img/posts/2024-02-27-distributed_database/image7.png" alt="不同分布方式对比" style="display: block; margin: 0 auto;">
+  <p style="font-size: medium;"><em>不同分布方式对比</em></p>
+</div>
 
 ### 数据分片
 - 数据切分为多个分片，存储在不同节点，每个节点存储1个或多个分片；
@@ -135,6 +119,7 @@ tags: [database, distributed]     # TAG names should always be lowercase
   1. 哈希分片Hash：将每条记录在分布列（控制数据的分布）的哈希值相同的数据记录分到相同节点；
   2. 范围分片Range：根据每条记录在分布列的值进行范围划分，将同一范围内的数据记录划分到相同节点，例如按照学号；
   3. 列表分片List：根据每条记录在分布列的值进行列表划分，即将该分布列的所有值进行分组，落在相同分组的数据记录放到同一个节点，例如按照省份。
+
 ### 多副本和一致性
 1. 每个数据分片以多副本形式存储在多个节点中；
 2. 防止由于单个节点故障造成数据损坏或丢失的情况，节点故障会从副本中选举出一个可用版本；
@@ -172,21 +157,16 @@ tags: [database, distributed]     # TAG names should always be lowercase
   - 如果任何一个参与者无法提交，则协调者发送回滚指令；
   - 参与者收到指令后进行提交或回滚操作。
 
-<p align="center">
-  <br>
-  <img src="assets/img/posts/2024-02-27-distributed_database/image8.png" alt="2PC提交成功">
-  <br>
-  <p align="center" style="font-size: medium;"><em>2PC提交成功</em></p>
-  <br>
-</p>
+<div style="text-align: center;">
+  <img src="assets/img/posts/2024-02-27-distributed_database/image8.png" alt="2PC提交成功" style="display: block; margin: 0 auto;">
+  <p style="font-size: medium;"><em>2PC提交成功</em></p>
+</div>
 
-<p align="center">
-  <br>
-  <img src="assets/img/posts/2024-02-27-distributed_database/image9.png" alt="2PC提交失败">
-  <br>
-  <p align="center" style="font-size: medium;"><em>2PC提交失败</em></p>
-  <br>
-</p>
+<div style="text-align: center;">
+  <img src="assets/img/posts/2024-02-27-distributed_database/image9.png" alt="2PC提交失败" style="display: block; margin: 0 auto;">
+  <p style="font-size: medium;"><em>2PC提交失败</em></p>
+</div>
+
 
 两阶段提交的问题：
 1.  性能较差
@@ -208,29 +188,20 @@ tags: [database, distributed]     # TAG names should always be lowercase
   2. 协调者故障后，新的协调者根据参与者记录的投票结果判断提交还是中止事务；
   3. 解决协调者单点故障带来的阻塞问题。
 
-<p align="center">
-  <br>
-  <img src="assets/img/posts/2024-02-27-distributed_database/image10.png" alt="3PC提交成功">
-  <br>
-  <p align="center" style="font-size: medium;"><em>3PC提交成功</em></p>
-  <br>
-</p>
+<div style="text-align: center;">
+  <img src="assets/img/posts/2024-02-27-distributed_database/image10.png" alt="3PC提交成功" style="display: block; margin: 0 auto;">
+  <p style="font-size: medium;"><em>3PC提交成功</em></p>
+</div>
 
-<p align="center">
-  <br>
-  <img src="assets/img/posts/2024-02-27-distributed_database/image11.png" alt="3PC第一阶段提交失败">
-  <br>
-  <p align="center" style="font-size: medium;"><em>3PC第一阶段提交失败</em></p>
-  <br>
-</p>
+<div style="text-align: center;">
+  <img src="assets/img/posts/2024-02-27-distributed_database/image11.png" alt="3PC第一阶段提交失败" style="display: block; margin: 0 auto;">
+  <p style="font-size: medium;"><em>3PC第一阶段提交失败</em></p>
+</div>
 
-<p align="center">
-  <br>
-  <img src="assets/img/posts/2024-02-27-distributed_database/image12.png" alt="3PC第二阶段提交失败">
-  <br>
-  <p align="center" style="font-size: medium;"><em>3PC第二阶段提交失败</em></p>
-  <br>
-</p>
+<div style="text-align: center;">
+  <img src="assets/img/posts/2024-02-27-distributed_database/image12.png" alt="3PC第二阶段提交失败" style="display: block; margin: 0 auto;">
+  <p style="font-size: medium;"><em>3PC第二阶段提交失败</em></p>
+</div>
 
 三阶段提交的问题：
 - 通信代价高，性能差。（因为要经过三轮网络IO）
