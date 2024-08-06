@@ -2,7 +2,7 @@
 title: Move Semantics Ⅰ
 date: 2024-08-05 20:00:00 +0800
 categories: [Tech, C++]
-tags: [Server, C++]     # TAG names should always be lowercase
+tags: [server, c++]     # TAG names should always be lowercase
 description: C++移动语义.
 math: true
 mermaid: true
@@ -13,7 +13,7 @@ mermaid: true
 
 《C++标准库》的作者 Nicolai M.Josuttis 的几本C++教程都挺好的，可惜只有关于C++11的这本书被侯捷翻译过来。《[C++ Move Semantics, the complete guide](https://www.cppmove.com/)》英文原版完成于20年，涵盖了从C++11到C++20的移动语义，读后收益良多，但是我没有整本翻译的动力，暂时写点读书笔记吧。
 
-书中的例子讲述的例子其实知识点重复冗余较多，但是这样也更好的使得每一节的知识点能更少地依赖上文。如果只是不清楚某个点可以直接按照目录查阅，而不需要从头阅读，从头阅读的话后续遇到一些重复叙述的点也能较快理解。
+书中的例子讲述的例子其实知识点重复冗余较多，但是这样也更好的使得每一节的知识点能更少地依赖上文。如果只是不清楚某个点可以直接按照目录查阅，而不需要从头阅读，从头阅读的话后续遇到一些重复叙述的点也能较快理解。有些词我翻译了会随便用，比如拷贝和复制我会混着用···emmmmmm····也懒得改了。
 
 ### 移动语义的动机
 
