@@ -4,6 +4,8 @@ date: 2024-02-28 20:00:00 +0800
 categories: [Tech, Database]
 tags: [database, distributed, Server]     # TAG names should always be lowercase
 description: 分布式锁的介绍以及实现
+math: true
+mermaid: true
 ---
 
 ## 概述
