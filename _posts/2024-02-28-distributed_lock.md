@@ -40,18 +40,15 @@ mermaid: true
 
 
 ## 分布式死锁检测
+
+![死锁检测](/assets/img/posts/2024-02-28-distributed_lock/image.png){: width="324" height="196" .w-50 .right}
 在一个分布式系统中，如果存在多个节点，使用分布式锁时发生死锁通常难以从日志以及堆栈中发现，因此如果需要对分
 布式死锁进行跟踪检测，需要添加分布式锁的检测服务。
 
 在分布式系统中，每个节点构建自己的事务等待关系（等待的节点，等待自己的节点），然后汇总到一起构建分布式的优
 先图。和单机一样，优先图带环则死锁。正常的情况应该是一个有向无环图。
 
-比如下图中，箭头指向表示自身节点等待的事务，如果四个节点间产生了环，则会陷入无休止的等待（死锁）中。
-
-<div style="text-align: center;">
-  <img src="assets/img/posts/2024-02-28-distributed_lock/image.png" alt="死锁检测" style="display: block; margin: 0 auto;">
-  <p style="font-size: medium;"><em>死锁检测</em></p>
-</div>
+比如图中，箭头指向表示自身节点等待的事务，如果四个节点间产生了环，则会陷入无休止的等待（死锁）中。
 
 
 ## Redis
@@ -65,7 +62,7 @@ Redis下可以通过插入数据项来实现分布式锁：
 
 为了加锁和设置过期作为一个原子化操作，可以这样：
 
-```SQL
+```sql
 SET lock $uuid EX 20 NX
 ```
 

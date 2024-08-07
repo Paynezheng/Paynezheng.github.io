@@ -8,6 +8,8 @@ math: true
 mermaid: true
 ---
 
+本文内容包括《C++ Move Semantics, the complete guide》的第3章。
+
 ## 类与移动语义
 
 本节展示类如何受益于移动语义，普通的类如何自动优化，以及怎么在类中显式实现移动语义。
@@ -99,12 +101,7 @@ int main()
 c: [Wolfgang Amadeus Mozart: 0 8 15 ]
 ```
 
-line 18中，push_back中使用了Customer的移动构造方法，操作后c成为一个移出对象，进入有效但未指定的状态。第二行输出可能为：
-
-```text
-c: [: ]
-```
-注意！此时第二行输出可能为任何值！只是为了优化内存，实现上常将其`vector`和`string`置为空。
+line 18中，push_back中使用了Customer的移动构造方法，操作后c成为一个移出对象，进入有效但未指定的状态。第二行输出可能为任何值！只是为了优化内存，实现上常将其`vector`和`string`置为空。
 
 通过显示地实现以下改进，此类可以进一步从移动语义中优化：
 - 初始化成员时使用移动语义；
@@ -112,15 +109,18 @@ c: [: ]
 
 #### 类中自动启用移动语义的场景
 
-根据上文中描述，编译器自动生成普通类的移动语义支持函数。但是并不是对所有的类都可以支持，有一定的限制条件。一条主要的原则是：编译器需要确认其生成的函数行为是正确的，移动函数对复制行为做了优化，而不是复制成员，且移动对象后移出对象将不再使用（至少不再使用原值）。
+根据上文中描述，编译器自动生成普通类的移动语义支持函数。但是并不是对所有的类都可以支持，有一定的限制条件。一条主要的原则是：**编译器需要确认其生成的函数行为是正确的**。移动函数对复制行为做了优化，而不是复制成员，且移动对象后移出对象将不再使用（至少不再使用原值）。
 
-如果类改变了复制或赋值的常规行为，那么在优化这些操作时可能也必须做一些不同的事情。因此，当**用户声明**以下至少一个特殊成员函数时，将禁用移动操作的自动生成:
+如果类改变了拷贝构造或拷贝赋值的常规行为（比如在拷贝时打印日志/交易数+1/会下个蛋/···），那么在优化这些操作时可能也必须做一些相同的事情（打印日志/交易数+1/···）。因此，当**自行声明**(包括自行实现，`=default`，甚至指定`=delete`)以下至少一个特殊成员函数时，将禁用移动操作的自动生成:
 - 复制构造函数；
 - 复制赋值运算符；
 - 另一个移动操作；
 - 析构函数。
 
+> 这里记不住也没事，可以往下看到[特殊成员函数](#特殊成员函数)这一小节，合起来一起记。
+
 任何形式的复制构造函数、复制赋值操作符或析构函数的显式声明都禁用移动语义。例如，如果实现了一个什么也不做的析构函数，就禁用了移动语义:
+
 ```cpp
 class Customer {
     // automatic move semantics is disabled
@@ -155,11 +155,11 @@ class Base {
 - 成员变量有限制：
   - 值的限制；
   - 值相互依赖；
-- 成员中使用了引用语义（指针，智能指针,···）；
+- 成员中使用了引用语义（指针，智能指针，···）；
 - 对象没有默认构造。
 
 我的理解/例子：
-- 值得限制： 值的限制可能导致移出对象未指定的值非法，导致移出对象进入非一致状态；
+- 值的限制： 值的限制可能导致移出对象未指定的值非法，导致移出对象进入非一致状态；
 - 值相互依赖： 
 - 引用语义： 与上面这个可能同时出现，如果指向自身的某些内容，移动后可能指向无效内容。
 - 对象没有默认构造： 无法生成一个空的默认构造函数，在这个基础上做移动操作。
@@ -170,7 +170,7 @@ or the destructor of the object might even fail. For example, objects of the Cus
 might suddenly have an empty name even though we have assertions to avoid that. The chapter about
 moved-from states will discuss this in detail.
 
-### 实现复制/移动函数
+### 实现复制和移动函数
 
 可以自行实现移动成员函数，与实现复制构造和复制赋值操作符的方式类似，仅参数需要声明为非const右值引用，且内部需要优化复制操作。
 
@@ -274,29 +274,332 @@ Customer& operator= (Customer&& cust) { // noexcept declaration missing
 }
 ```
 
-此外，如果需要遵循和STL一样的标准，仍然需要保证自移动后对象处于有效但未定义状态。
+在 *《Effective C++》*条款11/13/14中提到，当资源管理器正确封装时，一般自赋值不会出现问题（虽然那时还没有移动语义）；C++核心指南也表示这是“百万分之一的问题”。看起来在大部分情况下，保证需要遵循和STL一样的标准即可，仍然需要保证自移动后对象处于有效但未定义状态。
 
-#### 使用自定拷贝/移动函数
+原书中提供了[上述例子](#实现复制和移动函数)调用和执行的例子以观察代码行为，建议都搞下来跑一跑看看。测试样例代码：
 
+```cpp
+#include "customerimpl.h" // 上面实现的例子
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
 
-
+int main()
+{
+    std::vector<Customer> coll;
+    for (int i=0; i<12; ++i) {
+        coll.push_back(Customer{"TestCustomer " + std::to_string(i-5)});
+    }
+    std::cout << "---- sort():\n";
+    std::sort(coll.begin(), coll.end(),
+        [] (const Customer& c1, const Customer& c2) {
+            return c1.getName() < c2.getName();
+        });
+}
+```
 
 ### 特殊成员函数的规则
 
+这小节讨论六个特殊成员函数，特别讨论复制和移动成员函数何时以及如何生成（when and how）。
+
+#### 特殊成员函数
+
+C++标准将定义了六个特殊成员函数（*special member functions*）：
+- 默认构造
+- 拷贝构造
+- 拷贝赋值操作符
+- 移动构造（since C++11）
+- 移动赋值操作符（since C++11）
+- 析构
+
+默认构造与其他五个稍有不同，因为其他特殊成员函数没有需要的话一般都不声明且有更多复杂的依赖。编译器生成的默认构造函数为一个没有参数的构造函数。下图给出了何时自动生成特殊成员函数，取决于声明了哪个（其他）构造函数和特殊成员函数。
+
+![special member functions](/assets/img/posts/2024-08-06-move_semantics_2/image1.png){: width="694" height="425" }
+_special member functions_
+
+从图里可以总结几个规则：
+- 默认构造函数只会在开发者没有声明任何构造函数（包括自定义的默认/拷贝/移动/各种奇怪参数的构造）时自动声明；
+- 开发者声明拷贝成员函数（拷贝构造**或**拷贝赋值操作符）**或**析构函数（正如[类中自动启用移动语义的场景](#类中自动启用移动语义的场景)中所讨论的）会禁用移动函数的自动生成，但是仍可以按照移动函数传参的方式调用（除非显式删除），但执行语义上回回退到拷贝语义；
+- 开发者声明移动成员函数会禁用拷贝函数和（另一个）移动函数的自动生成，因此调用者只能移动而不能拷贝对象，此时另一个移动函数的拷贝回退也被禁用了（除非主动声明函数）；
+
+以下介绍一些细节和使用场景(当然如果你这里完全懂了，可以不看细节直接跳到[下一小节](#三五法则)，如果只需要一部分细节可以[跳到节尾](#特殊成员函数的准确规则)，否则的话还是根据具体例子理解下)。
+
+#### 默认情况下的拷贝和移动
+
+以下给出例子，例子中不定义任何特殊成员函数。
+
+```cpp
+class Person {
+    // ...
+public:
+    // ...
+    // NO copy constructor/assignment declared
+    // NO move constructor/assignment declared
+    // NO destructor declared
+};
+```
+
+在此情况下，编译器会生成默认的成员函数，实例化的对象可以进行拷贝和移动：
+
+```cpp
+std::vector<Person> coll;
+
+Person p{"Tina", "Fox"};        // ? // 这个不是默认构造函数
+
+coll.push_back(p);              // OK, copies p
+coll.push_back(std::move(p));   // OK, moves p
+```
+
+
+这里的`Person`实例化用的不是[默认构造函数](https://en.cppreference.com/w/cpp/language/default_constructor)，到底是什么我也不知道。有懂哥可以帮我解释一下。
+
+#### 使用拷贝语义并禁用移动语义
+
+开发者声明拷贝成员函数（拷贝构造**或**拷贝赋值操作符）**或**析构函数会禁用移动函数的自动生成，以下给出一个声明了拷贝函数例子：
+
+```cpp
+class Person {
+    // ...
+public:
+    // ...
+    // copy constructor/assignment declared:
+    Person(const Person&) = default;
+    Person& operator=(const Person&) = default;
+    // NO move constructor/assignment declared
+};
+```
+
+在此情况下，移动语义会被禁用，移动操作回回退到拷贝语义，比如下面例子中试图移动对象的例子：
+
+```cpp
+std::vector<Person> coll;
+
+Person p{"Tina", "Fox"};
+coll.push_back(p);              // OK, copies p
+coll.push_back(std::move(p));   // OK, copies p
+```
+
+因此，使用`=default`来声明特殊成员函数和不声明它是不一样的！当使用`=default`后，函数被认为是自定义（user-defined）的。自定义的拷贝函数和析构函数会禁用移动函数的自动生成。
+
+将移动函数声明为`=delete`来禁用移动语义并不是一个好选择，因为其会导致回退拷贝机制失效。如果需要禁用移动语义，只需要声明一个拷贝函数（或者两个都声明为默认，因为只声明一个有点令人费解）或者析构函数`=default`即可。
+
+#### 使用移动语义并禁用拷贝语义
+
+由开发者自行声明的（包括自行实现，`=default`，甚至指定`=delete`）移动函数，则会禁用拷贝语义（如果拷贝函数没有声明的话），默认生成的拷贝函数会被删除。参考以下例子：
+
+```cpp
+class Person {
+    // ...
+public:
+    // ...
+    // NO copy constructor declared
+    // move constructor/assignment declared:
+    Person(Person&&) = default;
+    Person& operator=(Person&&) = default;
+};
+```
+
+由于拷贝语义被禁用，类型只接受移动对象的操作。注意！这里不能只声明一个函数为`=default`了，因为只声明一个另一个移动函数将被禁用，会造成移动语义的不完整。
+
+```cpp
+    std::vector<Person> coll;
+
+    Person p{"Tina", "Fox"};
+    coll.push_back(p);                      // ERROR: copying disabled
+    coll.push_back(std::move(p));           // OK, moves p
+    coll.push_back(Person{"Ben", "Cook"});  // OK, moves temporary person into coll
+```
+
+这里又一次可以看出，声明一个特殊成员函数为`=default`与不声明之完全不同，而且这里完全改变了对象的行为：试图使用拷贝语义的行为被拒绝了。
+
+只支持移动语义的（**move-only**）类在需要严格管理对象所有权时是很有意义的。比如C++标准库中就有一些只支持的类，比如`I/O stream`，`std::thread`，`std::unique_ptr<>` 等。后续会在第13章介绍只支持移动语义的类。
+
+#### 删除移动没有意义
+
+
+同时禁用移动语义和拷贝语义的情况下，如果将移动函数声明为`=delete`（delete一个另一个自动禁用，但建议声明上保持一致），则会禁用默认拷贝函数的生成，对象同时失去移动和拷贝语义。
+
+```cpp
+class Person {
+public:
+    //...
+    // NO copy constructor declared
+    // move constructor/assignment declared as deleted:
+    Person(Person&&) = delete;
+    Person& operator=(Person&&) = delete;
+    //...
+};
+Person p{"Tina", "Fox"};
+coll.push_back(p);              // ERROR: copying disabled
+coll.push_back(std::move(p));   // ERROR: moving **disabled**
+```
+
+同样效果可以直接将拷贝函数声明为`=delete`来实现，因为声明拷贝函数的会禁用移动函数生成。
+
+如果只需要拷贝语义而禁用移动语义，如果将移动函数声明为`=delete`，可以达到效果，但是移动函数的拷贝回退将会失效，比如：
+
+```cpp
+class Person {
+public:
+    // ...
+    // copy constructor explicitly declared:
+    Person(const Person& p) = default;
+    Person& operator=(const Person&) = default;
+    // move constructor/assignment declared as deleted:
+    Person(Person&&) = delete;
+    Person& operator=(Person&&) = delete;
+    // ...
+};
+Person p{"Tina", "Fox"};
+coll.push_back(p);              // OK: copying enabled
+coll.push_back(std::move(p));   // ERROR: moving disabled
+```
+
+所以将移动函数声明为`=delete`同样没有意义，尽管行为不完全等于不声明移动函数。需要拷贝语义的时候可以声明拷贝函数（如果不需要修改默认实现声明为`=default`即可），则已经禁用移动函数生成。
+
+所以这里得出一个关键条款：
+
+> 永远不要将移动构造和移动赋值操作符函数声明为`=delete`.
+{: .prompt-tip }
+
+如果相同时禁用拷贝和移动语义，将拷贝函数声明为`=delete`即可。
+
+#### 移动包含禁用移动语义成员类型的对象
+
+生成的移动语义执行上在处理成员变量时，如果该类型支持移动，则执行其移动语义，否则创建其一个副本。比如，存在一个不支持移动的类型：
+
+```cpp
+class Customer {
+public:
+    // ...
+    Customer(const Customer&) = default;                // copying calls enabled
+    Customer& operator=(const Customer&) = default;     // copying calls enabled
+    // 根据上文的规则，这里不声明也会禁用移动语义，显式声明= delete在禁用移动语义的同时还失去了回退拷贝的特性
+    // Customer(Customer&&) = delete;                      // moving calls disabled
+    // Customer& operator=(Customer&&) = delete;           // moving calls disabled
+};
+```
+
+而另一个类包含该类型作为成员变量：
+
+```cpp
+class Invoice {
+    std::string id;
+    Customer cust;
+    public:
+        // ... // no special member functions
+};
+
+Invoice i;
+Invoice i1{std::move(i)}; // OK, moves id, copies cust
+```
+
+由于这个类没有定义任何特殊的成员函数，自动生成拷贝和移动语义的成员函数，在执行移动时，`string`成员将被移动，`Customer`成员将被拷贝。
+
+#### 特殊成员函数的准确规则
+
+回到本节的目标，这里解析特殊成员函数生成规则及其行为（when and how）。
+
+- 拷贝构造函数：
+  - 以下条件满足时自动生成拷贝构造函数：
+    - 没有声明移动构造函数；
+    - 没有声明移动赋值运算符；
+  - 如果是默认生成的（隐式或者用`=default`声明），拷贝构造有以下行为：
+    - 选择基类最匹配的拷贝构造，倾向调用相同声明的（一般声明const&），没有再匹配下一个最匹配的（比如拷贝构造函数模板）；
+    - 调用基类的的拷贝构造函数（拷贝构造总是从基类到子类的），然后调用成员变量的拷贝构造；
+    - 如果所有的基类以及所有的成员变量的拷贝构造函数都声明了`noexcept`，则该拷贝构造函数也会声明`noexcept`。
+
+```cpp
+MyClass(const MyClass& obj) noexcept 
+    : Base(obj), value(obj.value) {
+}
+```
+
+- 移动构造函数：
+  - 以下条件满足时自动生成移动构造函数：
+    - 没有声明拷贝构造函数；
+    - 没有声明拷贝赋值运算符；
+    - 没有声明移动赋值运算符；
+    - 没有声明析构函数；
+  - 如果是默认生成的（隐式或者用`=default`声明），移动构造有以下行为：（其实是类似拷贝构造的）
+    - 使用基类和成员移动语义时需要`std::move`标记参数;
+    - 选择基类最匹配的移动，倾向调用相同声明的（一般声明&&），没有再匹配下一个最匹配的（比如移动构造函数模板甚至拷贝构造函数）；
+    - 调用基类的的移动构造函数（移动构造也是从基类到子类的），然后调用成员变量的移动构造；
+    - 如果所有调用的移动/拷贝操作都声明了`noexcept`，则该移动构造函数也会声明`noexcept`。
+
+```cpp
+MyClass(MyClass&& obj) noexcept 
+    : Base(std::move(obj)), value(std::move(obj.value)) {
+}
+```
+
+- 拷贝赋值操作符：
+  - 以下条件满足时自动生成拷贝赋值操作符：
+    - 没有声明移动构造函数；
+    - 没有声明移动赋值运算符；
+  - 如果是默认生成的（隐式或者用`=default`声明），拷贝赋值操作符有以下行为：
+    - 选择基类最匹配的拷贝赋值，倾向调用相同声明的，没有再匹配下一个最匹配的；
+    - 调用基类的的拷贝赋值，然后调用成员变量的拷贝赋值；
+    - 注意，默认没有检查自赋值！如果有问题需要自行校验；
+    - 如果所有的基类以及所有的成员变量的拷贝赋值都声明了`noexcept`，则该拷贝赋值操作符也会声明`noexcept`。
+
+```cpp
+MyClass& operator= (const MyClass& obj) noexcept {
+    Base::operator=(obj);       // - perform assignments for base class members
+    value = obj.value;          // - assign new members
+    return *this;
+}
+```
+
+- 移动赋值操作符
+  - 以下条件满足时自动生成移动赋值操作符：
+    - 没有声明拷贝构造函数；
+    - 没有声明移动构造函数；
+    - 没有声明拷贝赋值运算符；
+    - 没有声明析构函数；
+  - 如果是默认生成的（隐式或者用`=default`声明），移动赋值操作符有以下行为：（其实是类似拷贝赋值操作符的）
+    - 使用基类和成员移动语义时需要`std::move`标记参数;
+    - 选择基类最匹配的移动赋值，倾向调用相同声明的，没有再匹配下一个最匹配的；
+    - 调用基类的的移动赋值，然后调用成员变量的移动赋值；
+    - 注意，默认没有检查自赋值，自赋值会使对象进入有效但未指定状态！如果有问题需要自行校验；
+    - 如果所有调用的移动/拷贝赋值操作都声明了`noexcept`，则该移动赋值操作符也会声明`noexcept`。
+
+```cpp
+MyClass& operator= (MyClass&& obj) noexcept {
+    Base::operator=(std::move(obj));    // - perform move assignments for base class members
+    value = std::move(obj.value);       // - move assign new members
+    return *this;
+}
+```
+
+有一个比较特别的点是，基类的移动赋值已经使用了参数，该对象已经进入有效但未指定的状态。但是对于基类函数，派生类的成员是不可见的，仍然可以使用该对象的派生类成员变量。
+
+- 其他赋值操作符
+  - 析构函数：
+    - 除了其声明会禁用移动语义无其他作用；
+  - 默认构造函数：
+    - 任何构造函数的声明会禁用默认构造函数的生成。
+
+移出对象的状态一般会使默认后遭函数构造的状态，且该状态应该是可析构的。
+
 ### 三五法则
 
-## 如何从移动语义中受益
+由于上述规则中特殊成员函数间依赖之复杂，大多数程序员都没记住。所以需要一些比较好记的法则用以实际应用。
 
-### 避免命名对象
+三五法则：
+- 三法则（C++11之前）：要么同时声明三个特殊函数（拷贝构造，拷贝赋值，析构），要同时不声明之；
+- 五法则（C++11之后）：要么同时声明五个特殊函数（拷贝构造，拷贝赋值，移动构造，移动赋值，析构），要同时不声明之；
 
-### 避免不必要的std::move
+其中，声明（declaring）指的是以下任意一种方式：
+- 实现（`{...}`）;
+- 声明为默认实现（`=default`）；
+- 删除实现（`=delete`）。
+  
+也就是说，当其中一个被声明，则另外四个必须同时被声明（实现/`=default`/`=delete`）。
 
-### 用移动语义初始化成员
+五法则有个问题，如果只需要拷贝语义的时候，其实只声明拷贝函数即可。但是五法则要求声明五个函数，移动函数声明`=delete`会导致回退拷贝失效，`=default`与实现目标不符合，自行实现则相对非常复杂且行为怪异。
 
-### 类中使用移动语义
-
-## 引用的重载
-
-### getter的返回类型
-
-### 重载
+因此，三五法则在使用时应该注意：
+- 如果同时声明了五个函数，仔细思考其行为和依赖；
+- 如果不熟悉移动语义，建议只实现三个函数（拷贝构造，拷贝赋值，析构），如果不需要移动语义，声明（可以使用`=default`）拷贝函数以禁用移动函数。

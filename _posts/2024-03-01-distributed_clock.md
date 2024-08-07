@@ -96,6 +96,6 @@ TrueTime通过硬件（原子钟+GPS时钟）来解决时钟同步问题。每�
 ## 对比
 
 <div style="text-align: center;">
-  <img src="assets/img/posts/2024-03-01-distributed_clock/image4.png" alt="对比" style="display: block; margin: 0 auto;">
+  <img src="/assets/img/posts/2024-03-01-distributed_clock/image4.png" alt="对比" style="display: block; margin: 0 auto;">
   <p style="font-size: medium;"><em>对比</em></p>
 </div>
