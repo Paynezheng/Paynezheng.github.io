@@ -8,7 +8,7 @@ math: true
 mermaid: true
 ---
 
-本文内容包括《C++ Move Semantics, the complete guide》的第3章。
+本文是《C++ Move Semantics, the complete guide》第3章内容的读书笔记以及部分翻译。
 
 ## 类与移动语义
 
@@ -151,7 +151,7 @@ class Base {
 
 #### 生成不可用的移动函数
 
-即使保证了生成的拷贝操作是正确的，生成的移动函数也可能会导致一些问题。特别需要注意以下问题：
+即使保证了生成的拷贝操作是正确的，生成的移动函数也可能会导致一些问题。特别需要注意以下情况：
 - 成员变量有限制：
   - 值的限制；
   - 值相互依赖；
@@ -160,11 +160,11 @@ class Base {
 
 我的理解/例子：
 - 值的限制： 值的限制可能导致移出对象未指定的值非法，导致移出对象进入非一致状态；
-- 值相互依赖： 
-- 引用语义： 与上面这个可能同时出现，如果指向自身的某些内容，移动后可能指向无效内容。
-- 对象没有默认构造： 无法生成一个空的默认构造函数，在这个基础上做移动操作。
+- 值相互依赖/引用语义： 可能同时出现，如果指向自身的某些内容，移动后可能指向无效内容。
 
-原文：(我没理解)
+上述情况可能导致对象不再有效，不变量可能失效，析构对象可能不能正常执行。
+
+原文：(其实我没理解invariants指的什么)
 > The problem that can occur is that moved-from objects might no longer be valid: invariants might be broken
 or the destructor of the object might even fail. For example, objects of the Customer class in this chapter
 might suddenly have an empty name even though we have assertions to avoid that. The chapter about
