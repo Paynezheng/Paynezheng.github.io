@@ -32,17 +32,17 @@ std::vector<std::string> createAndInsert() {
     coll.reserve(3);                // 申请空间
     std::string s = "data";         // 创建string对象
 
-    coll.push_back(s);              // 复制string对象，复制得到的对象会插入vector
-    coll.push_back(s + s);          // 构造，复制，销毁临时对象
-    coll.push_back(s);              // 复制string对象，复制得到的对象会插入vector
+    coll.push_back(s);              // 拷贝string对象，拷贝得到的对象会插入vector
+    coll.push_back(s + s);          // 构造，拷贝，销毁临时对象
+    coll.push_back(s);              // 拷贝string对象，拷贝得到的对象会插入vector
 
-    return coll;                    // NVRO/复制
+    return coll;                    // NVRO/拷贝
 }
 
 int main() {
-    std::vector<std::string> v; // 构造vector
+    std::vector<std::string> v;     // 构造vector
     // ...
-    v = createAndInsert();       // 复制，销毁临时对象
+    v = createAndInsert();          // 拷贝，销毁临时对象
     // ...
 }
 ```
@@ -50,20 +50,20 @@ int main() {
 从内存的分配和回收角度，这段函数的执行步骤包括：
 1. 进入main函数，构造vector v；
 2. 调用createAndInsert，进入createAndInsert函数，构造vector coll；
-3. 申请分配coll空间；
+3. 申请分配coll容量，这里申请了三个对象的容量；
 4. 创建字符串对象s；
-5. 复制s，并将复制得到的对象插入到了vector空间内，至此C++11尚无可以优化的点；
-6. 构造一个s+s的临时对象，并复制临时对象，将复制得到的对象插入到了vector空间内，随后销毁临时对象；
-7. 复制s，并将复制得到的对象插入到了vector空间内，在此之后s将不再使用；
-8. 返回coll，这里可能需要将coll复制到返回值中，即需要复制一个vector和三个字符串对象，然后再销毁coll；更大的可能是这里发生NRVO（*Name Return Value optimization*），无需复制直接返回了coll；
+5. 拷贝s，并将拷贝得到的对象插入到了vector空间内，至此C++11尚无可以优化的点；
+6. 构造一个s+s的临时对象，并拷贝临时对象，将拷贝得到的对象插入到了vector空间内，随后销毁临时对象；
+7. 拷贝s，并将拷贝得到的对象插入到了vector空间内，在此之后s将不再使用；
+8. 返回coll，这里可能需要将coll拷贝到返回值中，即需要拷贝一个vector和三个字符串对象，然后再销毁coll；但编译器普遍的实现是这里执行NRVO（*Name Return Value optimization*），无需拷贝直接返回了coll；
 9. v接受creatAndInsert()函数返回值的拷贝，creatAndInsert()函数返回值作为临时变量被销毁。
 
-(N)RVO(*(Named) Return value optimization*)，（命名）返回值优化指的是编译器会自行选择，在返回命名对象或者临时对象时，是否采用直接返回，而省略从命名对象/临时对象(还可能是移动)拷贝到返回的临时对象的过程。该优化由编译器决定，一般不对其做假设。若假定其行为（比如在构造函数中输出之类）结果无法预估。
+(N)RVO(*(Named) Return value optimization*)，即（命名）返回值优化，指的是编译器会自行选择，在返回命名对象或者临时对象时，是否采用直接返回，而省略从命名对象/临时对象(还可能是移动)拷贝到返回的临时对象的过程。该优化由编译器决定，一般不对其做假设。若假定其行为则执行结果无法预估。比如构造函数中包含输出，无法预期该输出是否执行。
 
-出去NRVO可以优化的部分，上述的执行中额外的内存开销包括：
+除去NRVO可以优化的部分，上述的执行中额外的内存开销包括：
 1. 步骤6中构造了两个相同临时对象，销毁了一个临时对象，产生浪费；
-2. 步骤7中复制一个后续不再使用的对象；
-3. 步骤9中接受返回值作为临时对象复制后，销毁了临时对象。
+2. 步骤7中拷贝一个后续不再使用的对象；
+3. 步骤9中接受返回值作为临时对象拷贝后，销毁了临时对象。
 
 #### C++11 样例
 
@@ -77,7 +77,7 @@ std::vector<std::string> createAndInsert() {
     coll.reserve(3);                // 申请空间
     std::string s = "data";         // 创建string对象
 
-    coll.push_back(s);              // 复制string对象，复制得到的对象会插入vector
+    coll.push_back(s);              // 拷贝string对象，拷贝得到的对象会插入vector
     coll.push_back(s + s);          // 构造，移动，销毁临时对象
     coll.push_back(std::move(s));   // 移动string对象
 
@@ -97,17 +97,17 @@ int main() {
 2. 调用createAndInsert，进入createAndInsert函数，构造vector coll；
 3. 申请分配coll空间；
 4. 创建字符串对象s；
-5. 复制s，并将复制得到的对象插入到了vector空间内，至此C++11尚无可以优化的点；
+5. 拷贝s，并将拷贝得到的对象插入到了vector空间内，至此C++11尚无可以优化的点；
 6. 构造一个s+s的临时对象，并**移动临时对象**，将移动得到的对象插入到了vector空间内，随后销毁临时对象；
 7. 移动s，并将**移动得到的对象**插入到了vector空间内，在此之后s将不再使用，知道离开作用域调用构造函数；
-8. 返回coll，这里可能需要将coll移动到返回值中，然后再销毁coll；更大的可能是这里发生NRVO（*Name Return Value optimization*），无需复制直接返回了coll；
+8. 返回coll，这里可能需要将coll移动到返回值中，然后再销毁coll；更大的可能是这里发生NRVO（*Name Return Value optimization*），无需拷贝直接返回了coll；
 9. creatAndInsert()**函数返回值移动**到v中，creatAndInsert()函数返回值作为临时变量被销毁。
 
 对比与C++03中行为的不同之处，主要是：
 1. 临时对象自行发生了对象移动；
 2. 使用`std::move`标记的对象将其自身移动到了新对象中。
 
-移动对象行为不同于复制将内存部分进行了**深拷贝**，移动行为将原有对象的内存和状态转移给了新对象，但未销毁原有对象。按照C++标准规定，原有对象经过移动操作后，后文称之为**移出对象（Move-from Object）**，应处于**有效但未指定(Valid but unspecifued)**的状态。即该对象的状态是一致的，仍然可以访问值和方法，但是状态和值处于未指定状态。
+移动对象行为不同于拷贝将内存部分进行了**深拷贝**，移动行为将原有对象的内存和状态转移给了新对象，但未销毁原有对象。按照C++标准规定，原有对象经过移动操作后，后文称之为**移出对象（Move-from Object）**，应处于**有效但未指定(Valid but unspecifued)**的状态。即该对象的状态是一致的，仍然可以访问值和方法，但是状态和值处于未指定状态。
 
 `std::move`直接调用本身并不对原对象做任何操作，仅作标记作用，意思是“我不在需要这个值”，因此可以显式指定支持移动语义的对象执行移动行为。
 
@@ -116,12 +116,12 @@ int main() {
 步骤8中依旧可能调用NRVO，一般来说，函数返回值的来源可能是：
 1. 如果编译器实现了NRVO/RVO，则来源于命名对象/临时对象；
 2. 如果没有实现NRVO/RVO，但是返回值类实现了移动语义，则会将命名对象/临时对象移动到返回值中；
-3. 以上都没有，那就相当于没有优化，需要复制；
-4. 连复制都没有，寄。
+3. 以上都没有，那就相当于没有优化，需要拷贝；
+4. 连拷贝都没有，寄。
 
 ### 移动语义的实现
 
-移动语义实现前，`std::vector`只有复制语义：
+移动语义实现前，`std::vector`只有拷贝语义：
 ```cpp
 template<typename T>
 class vector {
@@ -130,7 +130,7 @@ public:
     // ... 
 }
 ```
-push_back调用会将参数绑定到const引用上，随后在函数内部对参数进行复制。函数内部const引用是只读的。
+push_back调用会将参数绑定到const引用上，随后在函数内部对参数进行拷贝。函数内部const引用是只读的。
 
 C++11开始，新增了push_back的一个函数重载：
 ```cpp
@@ -158,7 +158,7 @@ public:
 
 #### 拷贝构造代码实现
 
-拷贝构造复制对象内存空间（不是拷贝指针），以及对象状态。
+拷贝构造拷贝对象内存空间（不是拷贝指针），以及对象状态。
 ```cpp
 class string {
 private:
@@ -197,7 +197,7 @@ public:
 
 ### 回退拷贝
 
-假设有一个容器类，只实现了复制语义，如：
+假设有一个容器类，只实现了拷贝语义，如：
 ```cpp
 template<typename T>
 class MyVector {
@@ -223,7 +223,7 @@ coll.push_back(std::move(s)); // OK, uses copy semantics
 ### const对象的移动语义
 
 #### 试图移动const对象
-[上文中提到](#移动构造代码实现)，移动语义可能对移出对象进行修改，因此`const`对象无法实现移动语义，因为无法修改`const`对象。如果`std::move`指定`const`对象，函数会回退到复制语义版本。（所以这里的`std::move`啥都没干）
+[上文中提到](#移动构造代码实现)，移动语义可能对移出对象进行修改，因此`const`对象无法实现移动语义，因为无法修改`const`对象。如果`std::move`指定`const`对象，函数会回退到拷贝语义版本。（所以这里的`std::move`啥都没干）
 
 ```cpp
 std::vector<std::string> coll;
@@ -302,13 +302,13 @@ s = "hello again";          // OK, but rarely done
 foo(std::move(s));          // OK, value of s might change
 ```
 
-代码均可正常执行，但是前两行输出内容无法预测。由于该对象处于一致的状态，如果后续进行重新的复制，可以重复使用。
+代码均可正常执行，但是前两行输出内容无法预测。由于该对象处于一致的状态，如果后续进行重新的拷贝，可以重复使用。
 
 ### std::move
 
 `std::move`用以标记一个对象，表示“**我不在需要该值**”。这不代表原值的生命周期已经结束，已经销毁或者已经移动，事实上啥也没干。以下介绍`std::move`在不同场景中的使用效果。
 
-在实现移动和复制语义重载的函数中，调用者借助`std::move`可以显式指定移动语义。
+在实现移动和拷贝语义重载的函数中，调用者借助`std::move`可以显式指定移动语义。
 
 ```cpp
 void foo1(const std::string& lr); // binds to the passed object without modifying it
@@ -320,7 +320,7 @@ foo1(s); // calls the first foo1(), s keeps its value
 foo1(std::move(s)); // calls the second foo1(), s might lose its value
 ```
 
-只有复制语义（const引用）的函数中，使用`std::move`会回退到复制语义。
+只有拷贝语义（const引用）重载的函数在被调用时，使用`std::move`指定参数，函数的行为会回退到拷贝语义。
 
 ```cpp
 void foo2(const std::string& lr); // binds to the passed object without modifying it
