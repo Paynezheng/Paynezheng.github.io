@@ -4,6 +4,7 @@ date: 2024-03-01 20:00:00 +0800
 categories: [Tech, Database]
 tags: [database, distributed, server]     # TAG names should always be lowercase
 description: 分布式时钟介绍和实现.
+author: Payne
 math: true
 mermaid: true
 ---

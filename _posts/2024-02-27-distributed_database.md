@@ -4,7 +4,7 @@ date: 2024-02-27 20:00:00 +0800
 categories: [Tech, Database]
 tags: [database, distributed]     # TAG names should always be lowercase
 description: 分布式系统的背景，架构，分布式存储和事务.
-pin: true
+author: Payne
 math: true
 mermaid: true
 ---

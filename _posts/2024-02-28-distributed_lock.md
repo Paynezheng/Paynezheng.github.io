@@ -4,6 +4,7 @@ date: 2024-02-28 20:00:00 +0800
 categories: [Tech, Database]
 tags: [database, distributed, server]     # TAG names should always be lowercase
 description: 分布式锁的介绍以及实现
+author: Payne
 math: true
 mermaid: true
 ---
