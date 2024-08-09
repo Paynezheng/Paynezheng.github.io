@@ -1,7 +1,7 @@
 ---
 title: 线上排练(Jamulus)
 date: 2024-08-07 20:00:00 +0800
-categories: [Music]
+categories: [Music, Tool/Gear]
 tags: [music, gear]     # TAG names should always be lowercase
 description: 记录安装线上排练软件的过程.
 author: Payne

@@ -10,7 +10,7 @@ math: true
 mermaid: true
 ---
 
-本文是《C++ Move Semantics, the complete guide》第4~5章内容的读书笔记以及部分翻译。
+本文是《C++ Move Semantics, the complete guide》第4章内容的读书笔记以及部分翻译。
 
 ## 如何从移动语义中受益
 
@@ -302,8 +302,8 @@ private:
 
 > 想要使用移动语义优化类型（包括支持移动语义的成员）的构造，有两个可选方案：
 1. 使用传值的函数，并将所传的值move到成员中，所传的值来源于移动还是拷贝由使用者决定；
-2. 重载构造函数，使得每一个参数都包含支持右值引用和const左值引用两个版本。
-3. {: .prompt-tip }
+2. 移动构造开销较大的情况下，重载构造函数，使得每一个参数都包含支持右值引用和const左值引用两个版本。
+{: .prompt-tip }
 
 使用传值的函数定义简单，但是会导致多余的移动操作。如果移动操作也有巨大开销，那最好还是选择重载所有构造函数。
 
@@ -377,8 +377,58 @@ p.setFirstname("Constantin Alexander");     // would have to allocate again
 
 声明拷贝构造函数和析构函数会禁用移动语义的自动生成，这同样作用于多态基类。但在继承关系中，移动语义的实现还有一些其他方面需要考虑。
 
-## 引用的重载
+#### 实现多态基类
 
-### getter的返回类型
+声明析构函数的时候必然禁用移动语义，如果基类中包含需要使用移动语义的成员，则需要显式声明移动成员函数。但是显式声明移动成员函数会禁用拷贝语义，如果需要保留拷贝语义，还需要声明拷贝函数。
 
-### 重载
+如果上述这些特殊成员函数均被声明，可能导致出现切片（*slicing*）问题。
+
+> 切片问题（Slicing Problem）是指当通过值传递或赋值操作将派生类对象赋值给基类对象时，派生类对象的特定部分（即派生类新增的成员变量和方法）被“切掉”或丢失，只保留基类部分。这会导致对象的多态性失效，并且可能引发未定义行为。
+
+参考以下例子：
+
+```cpp
+Circle c1{1}, c2{2};
+
+GeoObj& geoRef{c1};
+geoRef = c2;            // OOPS: uses GeoObj::operator=() and assigns no Circle members
+```
+
+因为基类的赋值操作运算符没有声明`virtual`，所以只会使用指针类型对应的定义，导致其没有操作派生类的部分。即使指定了`virtual`也于事无补，因为派生类中的赋值操作运算符的参数类型与基类不同，无法`override`。为了避免切片问题，将基类定义为：
+
+```cpp
+class GeoObj {
+protected:
+    std::string name;                 // name of the geometric object
+
+    GeoObj(std::string n)
+        :name{std::move(n)} {}  
+public:
+    std::string getName() const {
+        return name;
+    }
+
+    virtual void draw() const = 0;    // pure virtual function (introducing the API)
+    virtual ~GeoObj() = default;      // would disable move semantics for name
+protected:
+    // enable copy and move semantics (callable only for derived classes):
+    GeoObj(const GeoObj&) = default;
+    GeoObj(GeoObj&&) = default;
+    // disable assignment operator (due to the problem of slicing):
+    GeoObj& operator= (GeoObj&&) = delete;
+    GeoObj& operator= (const GeoObj&) = delete;
+    //...
+};
+```
+
+ps.虽然这样确实避免了切片问题···但是现在赋值运算符也用不了了，也不是什么好的解决办法···
+
+更多参考:
+- 《C++ Core Guideline》 [C.35](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rc-dtor-virtual) and C.67
+- [compiler_explorer](https://github.com/nglee/compiler_explorer/blob/master/220329_move_in_class_hierarchy.cpp)
+
+#### 实现派生类
+
+一般来说，不需要在派生类中声明特殊成员函数。特别是没有需要实现的时候，不需要声明析构函数，否则又需要自行声明以启用移动语义。
+
+如果声明了移动构造，要谨慎处理正确的`noexcept`条件。
