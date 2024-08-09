@@ -97,6 +97,8 @@ Person p{"Ben", "Cook"};
 - 4次构造（4次内存分配），2个是拷贝构造；
 - 析构2个临时对象，析构前对象会被复制；
 
+如果是直接传值，那就只包括函数内的2次拷贝构造成员。
+
 #### 左值引用
 
 声明参数为左值引用的构造函数不能满足接受参数类型的要求，比如以下代码：
@@ -149,9 +151,11 @@ Person p{std::move(firstname),      // OK, move names via parameters to members
 - 4次构造（2次内存分配），2次拷贝构造，2次移动构造；
 - 析构2个临时对象，析构前对象已被移动。
 
-例子3中传右值，可以触发`string`类型的移动语义(如果是不支持移动语义的类型，则退化为例子2的执行方式)，这里会将右值引用移动到参数*f/l*，然后*f/l*再移动到成员变量中。这里函数调用包括：
+可以看出，传值函数在直接接受传值时，每个参数需要比定义`const`引用的构造多使用一次移动构造（但在C++11之前是多使用一次拷贝构造！）。例子3中传右值，可以触发`string`类型的移动语义(如果是不支持移动语义的类型，则退化为例子2的执行方式)，这里会将右值引用移动到参数*f/l*，然后*f/l*再移动到成员变量中。这里函数调用包括：
 - 4次移动构造（0次内存分配）；
 - 析构3个临时对象，析构前对象已被移动，firstname的析构函数暂时还不会被调用。
+
+传值函数在直接接受传值时，每个参数需要比定义右值引用的函数也多使用一次移动构造。
 
 #### 右值引用
 
@@ -173,14 +177,14 @@ Person p{"Ben", "Cook"};
 - 2次移动构造；
 - 如果参数的右值引用是临时变量，则析构之。
 
-但是，定义右值引用参数形式不能直接接受命名变量参数，比如：
+明显可以看出，如果参数是可以使用移动语义的对象，这里减少了需要使用的移动构造函数的次数。但是，定义右值引用参数形式不能直接接受命名变量参数，比如：
 
 ```cpp
 std::string name1{"Jane"}, name2{"White"};
 Person p2{name1, name2};    // ERROR: can’t pass a named object to an rvalue reference
 ```
 
-因此定义了右值引用的构造函数时，需要重载对应的const左值引用函数作为回退，为了覆盖`string`类型的直接传值，定义例子如下：
+因此定义了右值引用的构造函数时，需要重载对应的`const`左值引用函数作为回退，为了覆盖`string`类型的直接传值，定义例子如下：
 
 ```cpp
 class Person {
@@ -198,6 +202,7 @@ class Person {
 ```
 
 不嫌麻烦地话甚至可以重载对`const char*`类型的支持，一共需要定义9（3*3）个函数：
+
 ```cpp
 class Person {
 private:
@@ -227,9 +232,150 @@ public:
 
 #### 行为和性能对比
 
+一般来说，出于性能的考虑我们都倾向于不去使用简单的定义`const`左值引用的构造函数。下文将测试对比上文中介绍的三种（不包含左值引用）定义构造函数的方式的性能对比，以三种不同的调用方式（临时变量，命名变量，`std::move`）调用构造函数：（为了防止SSO，这里专门用了比较长的字符串）
+
+```cpp
+#include <chrono>
+
+// measure num initializations of whatever is currently defined as Person:
+std::chrono::nanoseconds measure(int num)
+{
+    std::chrono::nanoseconds totalDur{0};
+    for (int i = 0; i < num; ++i) {
+        std::string fname = "a firstname a bit too long for SSO";
+        std::string lname = "a lastname a bit too long for SSO";
+        
+        // measure how long it takes to create 3 Persons in different ways:
+        auto t0 = std::chrono::steady_clock::now();
+        Person p1{"a firstname too long for SSO", "a lastname too long for SSO"};
+        Person p2{fname, lname};
+        Person p3{std::move(fname), std::move(lname)};
+        auto t1 = std::chrono::steady_clock::now();
+        totalDur += t1 - t0;
+    }
+    return totalDur;
+}
+```
+
+如果想自己跑一下测试，可以直接下载[代码文件*initperf.cpp*](https://cppmove.com/code/basics/initperf.cpp.html)跑一下所有的三个实现，包括测试SSO对性能的影响，了解对应不同实现的性能对比。
+
+三个不同实现运行效果区别：
+- `const`左值引用构造明显慢于其他构造（有时甚至是2倍的时间差距？）；
+- 传值构造和右值引用重载构造没有明显的性能差异，两者速度不相上下；
+- 如果使用了SSO，则移动构造和拷贝构造没有明显区别，几种方式的性能会更接近。
+
+```text
+# initperf.cpp的一次执行结果
+  a: classic:       0.04503ms
+  b: all:           0.02425ms
+  c: valmove:       0.02814ms
+  d: classicSSO:    0.02472ms
+  e: allSSO:        0.01732ms
+  f: valmoveSSO:    0.01959ms
+```
+
+但是如果类型中包含一个无法用移动语义优化的，拷贝开销还非常大的类型，传值函数将面临甚至两倍的开销，比如对于以下类型：
+
+```cpp
+class Person {
+private:
+    std::string name;
+    std::array<double, 10000> values; // move can’t optimize here
+    public:
+    // ...
+};
+```
+
+每次移动和拷贝都无法避免需要拷贝values中这10000个基本类型。具体性能表现可以下载[*initbigperf.cpp*](https://cppmove.com/code/basics/initbigperf.cpp.html)进行测试。
+
+```text
+# initbigperf.cpp的一次执行结果
+  a: bigclassic:    5.50814ms
+  b: bigall:        5.44619ms
+  c: bigmove:       10.6304ms
+  d: bigclassicSSO: 5.30286ms
+  e: bigallSSO:     5.27824ms
+  f: bigmoveSSO:    10.5696ms
+```
+
 #### 总结
 
-### 类中使用移动语义
+> 想要使用移动语义优化类型（包括支持移动语义的成员）的构造，有两个可选方案：
+1. 使用传值的函数，并将所传的值move到成员中，所传的值来源于移动还是拷贝由使用者决定；
+2. 重载构造函数，使得每一个参数都包含支持右值引用和const左值引用两个版本。
+3. {: .prompt-tip }
+
+使用传值的函数定义简单，但是会导致多余的移动操作。如果移动操作也有巨大开销，那最好还是选择重载所有构造函数。
+
+除了构造函数，传值并移动参数值并不适合所有场景。这*取决于成员是否已经有值，如果已有值*，这样实现可能导致反向优化。比如，以下有一个set方法采取了类似的实现，并按照其中的例子调用接口：
+
+```cpp
+class Person {
+private:
+    std::string first;  // first name
+    std::string last;   // last name
+    public:
+    Person(std::string f, std::string l)
+        : first{std::move(f)}, last{std::move(l)} {}
+
+    void setFirstname(std::string s) {      // take by value
+        first = std::move(s);               // and move
+    }
+
+    // 传统实现，这个函数确实可以和上面这个函数一起定义，但是最好不要这么做
+    // 调起接口非常地狱，编译器会常常不知道你想调什么接口
+    void setFirstname(const std::string& s) { // take by reference
+        first = s; // and assign
+    }
+};
+
+Person p{"Ben", "Cook"};
+std::string name1{"Ann"};
+std::string name2{"Constantin Alexander"};
+
+p.setFirstname(name1);
+p.setFirstname(name2);
+p.setFirstname(name1);
+p.setFirstname(name2);
+```
+
+假设没有SSO，每次调用set方法：
+- 传值函数都会拷贝创建临时对象，并将其移动到成员内，四次调用分配了四次内存；
+- 传const引用，每次只会在原成员长度小于新长度时需要分配内存。
+
+因此，如果成员已经包含了值，传值并移动的实现可能是反向优化。
+
+构造函数之外，重载右值引用函数也不一定适合所有场景，也可能导致反向优化。因为移动语义收缩成员的内存容量，使得如果穿插调用传左值引用，不得不有多余的分配内存，比如：
+
+```cpp
+class Person {
+private:
+    std::string first;  // first name
+    std::string last;   // last name
+public:
+    Person(std::string f, std::string l)
+        : first{std::move(f)}, last{std::move(l)} {}
+    // ...
+    void setFirstname(const std::string& s) {   // take by lvalue reference
+        first = s; // and assign
+    }
+    void setFirstname(std::string&& s) {        // take by rvalue reference
+        first = std::move(s);                   // and move assign
+    }
+    // ...
+};
+Person p{"Ben", "Cook"};
+p.setFirstname("Constantin Alexander");     // would allocate enough memory
+p.setFirstname("Ann");                      // would reduce capacity
+p.setFirstname("Constantin Alexander");     // would have to allocate again
+
+```
+
+综上，如果是更新或者是修改一个已初始化的成员，传统的定义`const`引用的方式更合适。如果是初始化成员，或者新增值，或者给容器新增成员等情况，可以考虑传值移动和重载右值引用函数两种实现方式。
+
+### 继承关系中的移动语义
+
+声明拷贝构造函数和析构函数会禁用移动语义的自动生成，这同样作用于多态基类。但在继承关系中，移动语义的实现还有一些其他方面需要考虑。
 
 ## 引用的重载
 
