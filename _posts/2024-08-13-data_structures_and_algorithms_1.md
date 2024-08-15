@@ -73,12 +73,55 @@ DSA的计算成本各个方面的度量方法。
 
 ### 级数
 
-- 算数级数： 与*末项平方*同阶
+- 算数级数：与*末项平方*同阶
 
-$$ T(n) = 1 + 2 + ... + n = \cancel{\sum_{i=1}^{n} i} = \frac{n(n+1)}{2} = O(n^2) $$
+$$ T(n) = 1 + 2 + ... + n = \cancel{\sum_{i=1}^{n} i} = \frac{n(n+1)}{2} = O(n^2) \tag{1}$$
 
-- 幂方级数： 比幂方高*一阶*，这里将级数近似看做函数积分
+- 幂方级数：比幂方高*一阶*，这里将级数近似看做函数积分
 
-$$ \sum_{k=0}^n k^d \approx \int_0^n x^d \, dx = \cancel{\frac{x^{d+1}}{d+1} \bigg|_0^n} = \cancel{\frac{n^{d+1}}{d+1}} = O(n^{d+1}) $$
+$$ \sum_{k=0}^n k^d \approx \int_0^n x^d \, dx = \cancel{\frac{x^{d+1}}{d+1} \bigg|_0^n} = \cancel{\frac{n^{d+1}}{d+1}} = O(n^{d+1}) \tag{2}$$
 
-- 几何级数
+- 几何级数：与*末项*同阶
+
+$$ T_a(n) = \sum_{k=0}^n a^k = a^0 + a^1 + a^2 + a^3 + ... + a^n = \cancel{\frac{a^{n+1}-1}{a-1}} = O(a^n), \; 1 < a \tag{3}$$
+
+- 收敛级数：
+
+<!-- $$ \sum_{k=2}^n \frac{1}{(k-1) \cdot k} = \frac{1}{1 \cdot 2} + \frac{1}{2 \cdot 3} + \frac{1}{3 \cdot 4} + ... + \frac{1}{(n-1) \cdot n} = 1 - \frac{1}{n} = O(1) $$  -->
+
+$$ \sum_{k=2}^n \frac{1}{(k-1) \cdot k} = 1 - \frac{1}{n} = O(1) \tag{4}$$ 
+
+$$ \sum_{k=1}^{n} \frac{1}{k^2} < \sum_{k=1}^{\infty} \frac{1}{k^2} = \frac{\pi^2}{6} = O(1) \tag{5}$$
+
+> 该等式证明需要参考[*巴塞尔问题*](https://zh.wikipedia.org/wiki/%E5%B7%B4%E5%A1%9E%E5%B0%94%E9%97%AE%E9%A2%98)，此处不做展开。
+
+$$ \sum_{\textit{k is a perfect power}} \frac{1}{k-1} = \sum_{m=2}^{\infty} \sum_{n=2}^{\infty} \frac{1}{m^n - 1} = \frac{1}{3} + \frac{1}{7} + \frac{1}{8} + \frac{1}{15} + \frac{1}{24} + \frac{1}{26} + ... = 1 = O(1) \tag{6}$$
+
+> 次方数（*[perfect power](https://en.wikipedia.org/wiki/Perfect_power)*）是指可以表示为某个整数的幂的数，即形如 ( k = m^n ) 的数。此处等式证明来自[哥德巴赫-欧拉定理](https://en.wikipedia.org/wiki/Goldbach%E2%80%93Euler_theorem)，此处不做展开。
+
+$$ (1 - \lambda)\sum_{k=1}^{\infty} k \cdot \lambda^{k-1} = (1 - \lambda) \cdot [1 + 2\lambda + 3\lambda^2 + 4\lambda^3 + ...] = \frac{1}{1 - \lambda} = O(1), \; 0 < \lambda < 1 \tag{7}$$ 
+
+> 基础操作次数、存储单元数难道还有可能是分数？某种意义上的确是的！
+
+- 发散级数：
+
+调和级数： 
+
+$$ h(n) = \sum_{k=1}^n \frac{1}{k} = 1 + \frac{1}{2} + \frac{1}{3} + \frac{1}{4} + ... + \frac{1}{n} = \ln n + \cancel{\gamma + O(\frac{1}{2n})} = \Theta(\log n) \tag{8}$$ 
+
+对数级数（常用于估计排序复杂度）：
+
+$$ \sum\limits_{k=1}^n \ln k = \ln \prod_{k=1}^n k = \ln (n!) \approx (n + 0.5) \cdot \ln n - n = \Theta(n \cdot \log n) \tag{9}$$
+
+> 该式使用[*斯特林公式(Stirling's formula)*](https://en.wikipedia.org/wiki/Stirling%27s_approximation)取得近似值，此处不做展开。
+
+对数+线性+指数：
+
+$$ \sum_{k=1}^n k \cdot \log k \approx \int_1^n x\ln x dx = \frac{x^2 \cdot (2\cdot \ln x - 1)}{4} \bigg|_1^n = O(n^2\log n) \tag{10}$$
+
+$$ \sum_{k=1}^n k \cdot 2^k = \sum_{k=1}^n k \cdot 2^{k+1} - \sum_{k=1}^n k \cdot 2^k =
+\sum_{k=1}^{n+1} (k-1) \cdot 2^k - \sum_{k=1}^n k \cdot 2^k $$
+
+$$ = n \cdot 2^{n+1} - \sum_{k=1}^n 2^k = n \cdot 2^{n+1} - (2^{n+1} - 2) = O(n \cdot 2^n) \tag{11}$$
+
+> (11)式中推导中添加了一个空项。
