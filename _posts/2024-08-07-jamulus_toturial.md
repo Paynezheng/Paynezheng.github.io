@@ -52,6 +52,8 @@ mermaid: true
 
 连接自己的乐器到声卡上，此时弹奏乐器，Jamulus左侧这个Input栏的Input有反应则说明有输入，否则需要检查乐器/声卡/声卡驱动等。如果声卡驱动已正常安装，进入Jamulus时无需其他配置。
 
+setting里面有一个设置自己的输入输出是立体声还是单声道的，一般我设置为单声道输入/立体声输出，因为我的声卡乐器和麦克风是分成两个声道输入的。
+
 这时候查看左侧中间有一个小灯，旁边写着Delay的，用来表示当前延迟大小。如果是绿灯，说明很绿色；如果是黄灯，说明很危；如果是红灯，说明寄了，玩不了。
 
 ### 连接服务器
@@ -95,7 +97,7 @@ mermaid: true
 #### 机器选配
 
 机器配置：
-1. 运行软件要求任何服务器都应至少具有 1.6GHz CPU 频率和 1GB RAM
+1. 运行软件要求任何服务器都应至少具有 1.6GHz CPU 频率和 1GB RAM，实际上四五个人使用的话基本上吃不了多少计算和内存，2核2G的机器足矣；
 2. 购买带宽/流量，公网IP是必须的；
 3. 系统可以选择ubuntu(别太旧的版本都行)；
 4. 最好是同个地域的机器；
@@ -206,6 +208,15 @@ ExecStart=/usr/bin/jamulus-headless --nogui --server \
 ```
 
 其中country_id自行替换（China国家ID是44， Hong_Kong是97），房间名和所在地也需要替换；这里directoryaddress里的hostname自己瞎替换一个就行，port默认是22124.
+
+比如我是这么设置的：
+
+```shell
+ExecStart=/usr/bin/jamulus-headless --nogui --server \
+        --directoryaddress playground.com:22124 \
+        --serverinfo "[Playground];[Shenzhen];[44]"
+```
+
 修改完成后，按下 Ctrl + X，接著输入 Y 以保存文件，然后按下 Enter 退出。
 
 第七步： 重启服务系统守护进程和Jamulus
