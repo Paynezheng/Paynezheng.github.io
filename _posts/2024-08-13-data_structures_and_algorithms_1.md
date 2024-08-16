@@ -96,7 +96,7 @@ $$ \sum_{k=2}^n \frac{1}{(k-1) \cdot k} = 1 - \frac{1}{n} = O(1) \tag{4}$$
 
 $$ \sum_{k=1}^{n} \frac{1}{k^2} < \sum_{k=1}^{\infty} \frac{1}{k^2} = \frac{\pi^2}{6} = O(1) \tag{5}$$
 
-> 该等式证明需要参考[*巴塞尔问题*](https://zh.wikipedia.org/wiki/%E5%B7%B4%E5%A1%9E%E5%B0%94%E9%97%AE%E9%A2%98)，此处不做展开。
+> 该等式证明需要参考[*巴塞尔问题(Basel problem)*](https://zh.wikipedia.org/wiki/%E5%B7%B4%E5%A1%9E%E5%B0%94%E9%97%AE%E9%A2%98)，此处不做展开。
 
 $$ \sum_{\textit{k is a perfect power}} \frac{1}{k-1} = \sum_{m=2}^{\infty} \sum_{n=2}^{\infty} \frac{1}{m^n - 1} = \frac{1}{3} + \frac{1}{7} + \frac{1}{8} + \frac{1}{15} + \frac{1}{24} + \frac{1}{26} + ... = 1 = O(1) \tag{6}$$
 
@@ -118,7 +118,7 @@ $$ \sum\limits_{k=1}^n \ln k = \ln \prod_{k=1}^n k = \ln (n!) \approx (n + 0.5) 
 
 > 该式使用[*斯特林公式(Stirling's formula)*](https://en.wikipedia.org/wiki/Stirling%27s_approximation)取得近似值，此处不做展开。
 
-对数+线性+指数：
+线性+对数/线性+指数：
 
 $$ \sum_{k=1}^n k \cdot \log k \approx \int_1^n x\ln x dx = \frac{x^2 \cdot (2\cdot \ln x - 1)}{4} \bigg|_1^n = O(n^2\log n) \tag{10}$$
 
@@ -156,12 +156,14 @@ $$ T(n) = O(g(n)) + a\cdot T(\frac{n}{b}) $$
 
 其中，原问题分为$$ a $$个规模为$$ n/b $$的子任务；任务的划分、解的合并总共耗时$$g(n)$$.
 
-若$$ g(n) = \Theta(n^{\log_b a} \cdot \log^k n) $$，且$$0 \leq k$$，则$$T(n)=\Theta(g(n)\cdot \log n) = \Theta(n^{\log_b a} \cdot \log^{k+1} n)$$.
+若$$ g(n) = \Theta(n^{\log_b a} \cdot \log^k n) $$，且$$0 \leq k$$，则
+
+$$T(n)=\Theta(g(n)\cdot \log n) = \Theta(n^{\log_b a} \cdot \log^{k+1} n) \tag{12}$$
 
 使用主定理，可以很快速地算出一些应用分治策略地算法复杂度，如：
 
-- Binary Search: $$ \quad T(n) = {\color{red}{1}} \cdot T(n/{\color{red}{2}}) + O({\color{red}{1}}) = O({\color{red}{\log n}})$$.
-- Mergesort: $$ \quad T(n) = {\color{red}{2}} \cdot T(n/{\color{red}{2}}) + O({\color{red}{n}}) = O({\color{red}{n \cdot \log n}}) $$.
+- Binary Search: $$ \quad T(n) = {\color{cyan}{1}} \cdot T(n/{\color{cyan}{2}}) + O({\color{cyan}{1}}) = O({\color{cyan}{\log n}})$$.
+- Mergesort: $$ \quad T(n) = {\color{cyan}{2}} \cdot T(n/{\color{cyan}{2}}) + O({\color{cyan}{n}}) = O({\color{cyan}{n \cdot \log n}}) $$.
 
 证明略。
 
@@ -173,9 +175,27 @@ $$ T(n) = O(g(n)) + a\cdot T(\frac{n}{b}) $$
 
 $$ T(n) = O(g(n)) + \sum_{i=1}^k a_i \cdot T(b_i \cdot n + h_i(n)) $$
 
-其中，原问题分为$$ k $$组：各含$$ a_i $$个规模为$$ b_i \cdot n + h_i(n) $$的子任务；任务的划分、解的合并总共耗时$$g(n)$$.
+其中，原问题分为$$ k $$组：各含$$ a_i $$个规模为$$ b_i \cdot n + h_i(n) $$的子任务；任务的划分、解的合并总共耗时$$g(n)$$。并且需要满足条件：
 
-(略略略... )
+$$ 0<a_i, 0<b_i<1, \left|h_i(n)\right| \in O(n/\log^2 n) \tag{a}$$
+
+$$ 0 \leq g(n),\text{且存在非负常数d使得} \left| g'(n) \right| \in O(n^d) \text{（多项式增长）} \tag{b}$$
+
+只要取得$$ \color{cyan}{p} $$使得
+
+$$ \sum_{i=1}^k a_i \cdot b_i^{\color{cyan}{p}} = 1 \tag{c}$$
+  
+则:
+
+$$ T(n) = \Theta(n^{\color{cyan}{p}}\cdot (1 + \int_1^n \frac{g(u)}{u^{\color{cyan}{p} + 1}} du)) \tag{13}$$
+
+可以看出，该情况下对$$ h_i(n) $$有要求，但是问题复杂度结果并不依赖$$ h_i(n) $$。
+
+应用例子：
+
+$$ T(n) = {\color{cyan}{1}} \cdot T({\color{cyan}{\frac{3}{4}}} \cdot n) + {\color{cyan}{1}} \cdot T({\color{cyan}{\frac{1}{4}}} \cdot n) + O(n) = O({\color{cyan}{n\log n}}), p=1$$
+
+$$ T(n) = {\color{cyan}{1}} \cdot T({\color{cyan}{\frac{3}{4}}} \cdot n) + {\color{cyan}{1}} \cdot T({\color{cyan}{\frac{1}{5}}} \cdot n) + O(n) = O({\color{cyan}{n}}), p<1$$
 
 证明略。
 
