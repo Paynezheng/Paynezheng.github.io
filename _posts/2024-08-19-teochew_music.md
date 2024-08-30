@@ -1,8 +1,8 @@
 ---
 title: 潮州音乐学习
-date: 2024-08-19 16:43:00 +0800
+date: 3024-08-19 16:43:00 +0800 # 写完再发布吧
 categories: [Music, Teochew music]
-tags: [music, teochew music]     # TAG names should always be lowercase
+tags: [music, teochew music]
 description: 关于潮州音乐的回忆，以及感悟
 author: Payne
 mermaid: true

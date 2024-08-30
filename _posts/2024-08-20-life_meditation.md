@@ -1,6 +1,6 @@
 ---
 title: Life
-date: 2024-08-20 10:03:00 +0800
+date: 3024-08-20 10:03:00 +0800 # 写完再发布吧
 categories: [Life]
 tags: [life]
 description: 缘由
