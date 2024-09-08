@@ -2,7 +2,7 @@
 title: 绪论（dsa_1）
 date: 2024-08-13 14:06:00 +0800
 categories: [Tech, DSA]
-tags: [c++, linux, dsa]     # TAG names should always be lowercase
+tags: [c++, linux, dsa]      
 description: 数据结构和算法
 author: Payne
 math: true

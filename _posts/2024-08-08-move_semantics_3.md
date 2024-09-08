@@ -2,7 +2,7 @@
 title: Move Semantics Ⅲ
 date: 2024-08-08 02:00:00 +0800
 categories: [Tech, C++]
-tags: [server, c++]     # TAG names should always be lowercase
+tags: [server, c++]      
 description: C++移动语义.
 author: Payne
 pin: true

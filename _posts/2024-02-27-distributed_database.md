@@ -2,7 +2,7 @@
 title: 分布式数据库概述
 date: 2024-02-27 20:00:00 +0800
 categories: [Tech, Database]
-tags: [database, distributed]     # TAG names should always be lowercase
+tags: [database, distributed]      
 description: 分布式系统的背景，架构，分布式存储和事务.
 author: Payne
 math: true
