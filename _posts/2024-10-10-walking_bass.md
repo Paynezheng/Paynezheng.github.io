@@ -1,7 +1,7 @@
 ---
 title: Walking Bass
 date: 2024-10-10 20:00:00 +0800
-categories: [Music，乐理]
+categories: [Music, 乐理]
 tags: [music]      
 description: 学习Walking Bass乐理以及心得
 author: Payne
