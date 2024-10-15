@@ -62,5 +62,14 @@ mermaid: true
 
 ### 延迟/Latency
 
+不同请求大小：**区分总持续时间和首次字节被检索到的延迟**。仅使用单个请求的结果如图所示。我们区分首次迭代和第20次连续迭代，以模拟热访问。实验结果表明:
+- 对于小请求大小，首次字节延迟往往主导整体运行时间,首次字节延迟和总持续时间相似。这突显了往返延迟限制了整体吞吐量;
+- 对于足够大的请求，带宽成为限制因素。从8 MiB增加到16 MiB时，我们看到改进很小，但持续时间已经增加了约1.9倍，而对象大小翻倍。从16 MiB增加到32 MiB会导致检索持续时间翻倍。
+
+因此，达到了带宽限制，进一步增加大小对检索性能没有益处。当数据为热数据时，首次字节延迟和总延迟通常会减少。
+
+![Latency](/assets/img/posts/2024-10-15-elasticity_compute_and_storage/image_1.png){: width="570" height="347"}
+_First byte and total latency for different requests sizes on hot and cold objects (AWS, eu-central-1, c5n.large)_
 
 
+> 对应到**Greptime**读取文件的场景中： 1. 读取平均大小小于 1 KiB 的 Manifest Files 的操作，可能需要约 30 ms（p50， Cold）/约 60 ms（p99，Cold）。 2. 读取 8 MiB 的 Parquet 文件，则需要约 240 ms（p50，Cold）/约 370 ms（p99，Cold）
