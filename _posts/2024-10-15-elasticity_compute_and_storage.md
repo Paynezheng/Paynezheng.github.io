@@ -150,7 +150,7 @@ $$ requests = thoughtput \cdot \frac{baseLatency + size \cdot dataLatency}{size}
 
 由实验结果也可以看出，基本数据请求数量和带宽的关系与模型相近，而在接近 S3 带宽上限开始限制带宽。
 
-![Request modeling](/assets/img/posts/2024-10-15-elasticity_compute_and_storage/image_3.png){: width="570" height="347"}
+![Request modeling](/assets/img/posts/2024-10-15-elasticity_compute_and_storage/image_3.png){: width="350" height="200"}
 _Request modeling for reaching throughput goal_
 
 > 结论4： 使高带宽网络达到饱和需要向云对象存储发出数百个未完成的请求。
@@ -166,6 +166,28 @@ AnyBlob 是作者自行设计的通用对象下载器，支持访问不同云服
 
 ### Design
 
-AnyBlob使用`io_uring`实现每个线程异步管理多个连接，减少额外的调度成本。接下来介绍AnyBlob的三个组件。
+AnyBlob使用`io_uring`实现每个线程异步管理多个连接，减少额外的调度成本。接下来介绍AnyBlob的三个组件，组件间的关系如图。
 
-`io_uring`:（**自Linux内核5.1起可用**）为存储和网络任务提供通用的内核接口。
+![AnyBlob](/assets/img/posts/2024-10-15-elasticity_compute_and_storage/image_4.png){: width="1000" height="570"}
+_AnyBlob uses state-machine based message tasks that are asynchronously processed with the help of io_uring._
+
+`io_uring`:（**自Linux内核5.1起可用**）为存储和网络任务提供通用的内核接口，它**允许用户提交一个或者多个I/O请求，它们被异步处理而不会阻塞调用进程**。它建立在两个无锁环形缓冲区（提交队列和完成队列）上，这两个缓冲区在用户空间和内核空间之间共享。`io_uring` 对于存储应用程序非常有效，但对于网络任务的研究较少。需要深入研究。
+
+基于状态机的消息：每个请求会定义一个状态机，在状态机中实现云对象存储HTTP请求的不同阶段。状态机使得单个线程能够异步和多路复用消息。
+
+异步系统调用：得益于`io_uring`，消息任务中对`send`和`recv`的系统调用异步处理。
+
+基于任务的发送-接受调度器：利用基于io_uring的套接字和消息任务，我们开发了一个基于任务的发送接收调度器。该任务调度器使用一个线程，持续执行作为事件循环的步骤。
+
+发送接收组。尽管单个基于任务的发送接收调度器具有高吞吐量（Gbit/s级），但这对于网络优化实例来说并不足够。因此，需要同时运行多个调度器。为了简化使用，采用无锁的发送接收任务组来管理多个发送接收调度器的请求。
+
+
+### 身份验证和安全
+
+### 域名解析策略
+
+### 性能评估
+
+## 集成云存储
+
+## 实验评估

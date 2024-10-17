@@ -1,6 +1,6 @@
 ---
 title: 歌词写作
-date: 2025-01-01 12:00:00 +0800
+date: 2024-10-17 12:00:00 +0800
 categories: [Music, Berklee]
 tags: [music]      
 description: 学习笔记和心得
