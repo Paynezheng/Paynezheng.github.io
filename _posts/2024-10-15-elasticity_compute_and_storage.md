@@ -184,10 +184,32 @@ _AnyBlob uses state-machine based message tasks that are asynchronously processe
 
 ### 身份验证和安全
 
+透明认证：AnyBlob 实现了从多个云存储提供商上传和下载对象的操作。我们使用OpenSSL库实现了自定义的签名过程，以尽量减少核心数的情况下保持高吞吐量。
+
+支持静态加密：AnyBlob 通过提供易于使用的、就地的、快速的 AES 加密和解密功能，支持用户应用程序使用静态加密。此外，AnyBlob 还允许请求使用 HTTPS（虽然大部分场景中并不需要）。
+
 ### 域名解析策略
+
+解析域名带来相当大的延迟开销，AnyBlob做了如下优化：
+
+1. 缓存多个Endpoints的IP，避免额外的解析开销；
+2. 基于吞吐量的解析器，统计信息以确定端点运行状态，并用作调度的参考信息；
+3. 基于 MTU：不同 S3 节点具有不同的最大传输单元（MTU）。其中，一些 S3 节点支持使用最大 9001 字节的巨型帧（Jumbo frames），这可以显著降低 CPU 开销，因为每个数据包内核的 CPU 开销可以通过更大的数据包分摊；
+4. MTU 发现策略：通过对目标节点 IP 进行 ping，并设置 Payload 数据大于 1500 字节且 DNF（do not fragment， 不分段），以确定是否支持更大的 MTU。
 
 ### 性能评估
 
+使用了AnyBlob，以及不同的S3 API实现，一个是官方的AWS C++ SDK，使用`curl`实现；另一个是S3Crt，使用AnyBlob的设计。
+
+成本-吞吐量[Pareto解](https://en.wikipedia.org/wiki/Multi-objective_optimization)(即多目标优化，在抠图算法中计算像素点距离和色相的偏移时也会应用此算法)显示，AnyBlob实现始终优于AWS C++ SDK。
+
+![吞吐量](/assets/img/posts/2024-10-15-elasticity_compute_and_storage/image_5.png){: width="570" height="347"}
+_Throughput and CPU usage Pareto curves for AnyBlob, S3, and S3Crt (AWS, eu-central-1, c5n.18xlarge)_
+
 ## 集成云存储
+
+在这一部分，作者介绍了他们是如何集成云存储的。总体而言，这些想法实际上都是趋同的，具体的实现细节还是要看各家工程实践的。
+
+查询引擎需要平衡查询处理和下载。作者提出了一个调度组件，以平衡对象存储检索和查询处理，从而能够有效调度线程，优化查询性能和CPU使用。借助此调度器，作者开发了一种基于成本效益的列式存储格式的高效表扫描操作符（SCAN算子实现）。
 
 ## 实验评估
