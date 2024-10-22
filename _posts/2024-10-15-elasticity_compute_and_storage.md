@@ -1,9 +1,9 @@
 ---
 title: Exploiting Cloud Object Storage for High-Performance Analytics
 date: 2024-10-10 20:00:00 +0800
-categories: [Tech, 论文阅读笔记]
+categories: [Tech, 论文精读]
 tags: [Paper]      
-description: 慕尼黑工业大学（TUM）2023 年 7 月发表在 PVLDB的论文： 利用对象存储进行高性能数据分析
+description: 慕尼黑工业大学（TUM）2023 年 7 月发表在 PVLDB 的论文： 利用对象存储进行高性能数据分析
 author: Payne
 math: true
 mermaid: true
