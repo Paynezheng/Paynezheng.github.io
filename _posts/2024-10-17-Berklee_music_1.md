@@ -37,7 +37,7 @@ mermaid: true
 - **When**;
 - **Where**;
 - Why;
-- How.
+- How，什么视角去讲述，如何讲述；
 
 ## 歌曲结构
 
@@ -91,7 +91,9 @@ ABBA 不稳定！
 
 ### Rhythms of lines
 
-## Metaphors/隐喻
+## 隐喻和明喻
 
-## Simile/明喻
+## 完美匹配
+歌词重音需要和歌曲的重音匹配；
+
 
