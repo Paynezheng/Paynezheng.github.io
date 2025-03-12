@@ -1,5 +1,5 @@
 ---
-title: Move Semantics Ⅰ
+title: Move Semantics
 date: 2024-08-05 20:00:00 +0800
 categories: [Tech, C++]
 tags: [server, c++]      
@@ -15,6 +15,12 @@ mermaid: true
 书中的例子讲述的例子其实知识点重复冗余较多，但是这样也更好的使得每一节的知识点能更少地依赖上文。如果只是不清楚某个点可以直接按照目录查阅，而不需要从头阅读，从头阅读的话后续遇到一些重复叙述的点也能较快理解。有些词我翻译了会随便用，比如拷贝和复制我会混着用···emmmmmm····也懒得改了。（不过这个复制听起来跟赋值有点像，记成拷贝就好多了）
 
 本文内容包括《C++ Move Semantics, the complete guide》的第1~2章。
+
+后续的翻译包括
+- [Move Semantics 2](https://paynezheng.github.io/posts/move_semantics_2/);
+- [Move Semantics 3](https://paynezheng.github.io/posts/move_semantics_3/);
+- [Move Semantics 4](https://paynezheng.github.io/posts/move_semantics_4/);
+
 
 ## 基础语义
 

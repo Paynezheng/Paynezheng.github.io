@@ -5,7 +5,6 @@ categories: [Tech, C++]
 tags: [server, c++]      
 description: C++移动语义.
 author: Payne
-pin: true
 math: true
 mermaid: true
 ---
