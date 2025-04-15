@@ -7,6 +7,7 @@ description: Predictive and Lockstep
 author: Payne
 math: true
 mermaid: true
+pin: true
 ---
 
 
