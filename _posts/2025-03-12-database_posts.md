@@ -61,6 +61,8 @@ ps. 语雀的分享只有半年有效期，如果看到失效了可以提醒我�
 
 ### 并发控制
 
+> **并发控制不仅是数据库，也是后台开发中高性能服务器实现的关键!**
+
 [文档](https://snrixk56e9.feishu.cn/docx/BVrVdYs41oOqMsxHmwkcPYotnpc?from=from_copylink)介绍了：
 - 并发控制的目的，方法，以及评估效果的方式；
 - 悲观并发控制技术；

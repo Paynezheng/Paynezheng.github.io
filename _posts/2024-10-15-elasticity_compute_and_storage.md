@@ -7,6 +7,7 @@ description: 慕尼黑工业大学（TUM）2023 年 7 月发表在 PVLDB 的论�
 author: Payne
 math: true
 mermaid: true
+pin: true
 ---
 
 > ByteHouse，Greptime都借鉴了该论文的设计。原文参考[这里](https://www.vldb.org/pvldb/vol16/p2769-durner.pdf)。
