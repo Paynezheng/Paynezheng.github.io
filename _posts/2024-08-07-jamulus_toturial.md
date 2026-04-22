@@ -6,7 +6,6 @@ tags: [music, gear]
 description: 记录安装线上排练软件的过程.
 author: Payne
 mermaid: true
-pin: true
 ---
 
 ## Jamulus

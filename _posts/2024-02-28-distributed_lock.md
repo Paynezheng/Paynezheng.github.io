@@ -7,7 +7,6 @@ description: 分布式锁的介绍以及实现
 author: Payne
 math: true
 mermaid: true
-pin: true
 ---
 
 ## 概述

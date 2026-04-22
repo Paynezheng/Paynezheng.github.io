@@ -6,6 +6,7 @@ tags: [server, linux, c++]
 description: Linux 内存模型以及编译链接原理.
 author: Payne
 mermaid: true
+pin: true
 ---
 
 笔记整理来源于 CSAPP 第九章 “Virtual Memory”。主要内容包括页表，硬件地址翻译，内存映射，动态分配。
