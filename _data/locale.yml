@@ -1,0 +1,19 @@
+# @start locale config
+en: &EN
+  SUBSCRIBE               : "Subscribe"
+  READMORE                : "Read more"
+  SEARCH                  : "Search"
+  CANCEL                  : "Cancel"
+  VIEWS                   : "views"
+  LAST_UPDATED            : "Last updated"
+  PREVIOUS                : "PREVIOUS"
+  NEXT                    : "NEXT"
+  ARTICLE_DATE_FORMAT     : "%b %d, %Y"
+  ARTICLE_LIST_DATE_FORMAT: "%b %d"
+  STATISTICS              : "[POST_COUNT] posts, [PAGE_COUNT] pages."
+  LICENSE_ANNOUNCE        : "This work is licensed under a [LICENSE] license."
+  POST_ON_GITHUB          : "Edit on GitHub"
+  FOLLOW_ME               : "Follow me on [NAME]."
+  EMAIL_ME                : "Send me an email."
+  COPYRIGHT_DATES         : "2023–2026"
+# @end locale config
