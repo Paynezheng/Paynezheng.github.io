@@ -2,7 +2,7 @@
 layout: article
 title: "琴行：这已经是今天第三个用这段来试琴的了"
 tags: video music bass
-cover: "/assets/img/posts/bass-qinghang-cover.jpg"
+cover: "https://wsrv.nl/?url=i2.hdslb.com/bfs/archive/26be6bd039e62468fe6b7d1028800249b6d57a54.jpg"
 ---
 
 这是一个关于贝斯手和琴行老板的经典互动。
