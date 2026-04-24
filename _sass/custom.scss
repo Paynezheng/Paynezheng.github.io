@@ -131,14 +131,14 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ============================================
-   Landing page — minimal Vulf Mono style
+   Landing page — minimal Vulf Mono italic style
    ============================================ */
 
 .landing-page {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 70vh;
+  min-height: 100vh;
   padding: 4rem 1rem;
   background: #fff;
 
@@ -146,6 +146,7 @@ h1, h2, h3, h4, h5, h6,
     text-align: center;
     font-family: "Vulf Mono", "Courier New", monospace;
     font-weight: 300;
+    font-style: italic;
     color: #1a1a1a;
     max-width: 560px;
     width: 100%;
@@ -154,19 +155,21 @@ h1, h2, h3, h4, h5, h6,
   &__divider {
     font-family: "Vulf Mono", monospace;
     font-weight: 300;
+    font-style: italic;
     font-size: 0.75rem;
-    color: #999;
+    color: #aaa;
     letter-spacing: 0.02em;
-    margin-bottom: 2.5rem;
-    line-height: 1.6;
+    margin-bottom: 2.8rem;
+    line-height: 1.7;
   }
 
   &__id {
     font-family: "Vulf Mono", monospace;
-    font-weight: 400;
-    font-size: 1.1rem;
-    letter-spacing: 0.08em;
-    margin-bottom: 0.6rem;
+    font-weight: 300;
+    font-style: italic;
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.8rem;
     color: #1a1a1a;
   }
 
@@ -175,21 +178,22 @@ h1, h2, h3, h4, h5, h6,
     font-weight: 300;
     font-style: italic;
     font-size: 0.9rem;
-    color: #555;
-    line-height: 1.8;
-    margin-bottom: 2.5rem;
+    color: #444;
+    line-height: 1.9;
+    margin-bottom: 2.8rem;
   }
 
   &__link {
     display: inline-block;
     font-family: "Vulf Mono", monospace;
     font-weight: 300;
-    font-size: 0.85rem;
+    font-style: italic;
+    font-size: 0.88rem;
     color: #e74c3c;
     text-decoration: none;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
 
-    &::before { content: "→ "; }
+    &::before { content: "→ "; font-style: normal; }
     &:hover { text-decoration: underline; }
   }
 }
