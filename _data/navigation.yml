@@ -2,15 +2,21 @@
 #      Main Nav Links     #
 # ----------------------- #
 header:
-  - title: Archive
+  - title: Index
     url: /archive.html
+
+  - title: Videos
+    url: /videos.html
 
   - title: About
     url: /about.html
 
 sidebar:
-  - title: Archive
+  - title: Index
     url: /archive.html
+
+  - title: Videos
+    url: /videos.html
 
   - title: About
     url: /about.html

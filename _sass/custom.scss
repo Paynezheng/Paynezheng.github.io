@@ -128,6 +128,36 @@ h1, h2, h3, h4, h5, h6,
 .article-content h5,
 .article-content h6 {
   font-family: "Vulf Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+/* Archive / tag / category year-group headers */
+.article-list__group-header {
+  font-style: italic;
+  letter-spacing: 0.06em;
+  font-weight: 300;
+}
+
+/* Navigation — Vulf Sans Light italic */
+.navigation__item a,
+.header__brand > a {
+  font-family: "Vulf Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: 0.04em;
+}
+
+/* Category / tag filter pills — Vulf Mono italic, editorial scale */
+.site-tags .tag-button {
+  font-family: "Vulf Mono", "Courier New", monospace;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+.site-tags .tag-button > .tag-button__count {
+  font-size: 0.65em;
 }
 
 /* ============================================
@@ -170,5 +200,26 @@ h1, h2, h3, h4, h5, h6,
     color: inherit;
     &.red { color: #e74c3c; }
     &:hover { text-decoration: underline; }
+  }
+}
+
+/* ============================================
+   Bilibili / video embed — responsive 16:9
+   ============================================ */
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+  margin: 1.5rem 0;
+
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
   }
 }

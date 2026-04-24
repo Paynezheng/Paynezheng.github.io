@@ -1,0 +1,12 @@
+---
+layout: page
+title: Videos
+---
+
+{%- assign video_posts = site.posts | where_exp: "post", "post.tags contains 'video'" -%}
+
+{%- if video_posts.size > 0 -%}
+  {%- include article-list.html articles=video_posts type='grid' show_cover=true cover_size='lg' -%}
+{%- else -%}
+<p style="color:#888;">No videos yet.</p>
+{%- endif -%}
