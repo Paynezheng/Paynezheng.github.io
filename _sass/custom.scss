@@ -131,7 +131,9 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ============================================
-   Landing page — minimal Vulf Mono italic style
+   Landing page — uniform Vulf Mono italic
+   One font, one size, one weight everywhere.
+   Use <span class="red"> for color accents.
    ============================================ */
 
 .landing-page {
@@ -139,61 +141,34 @@ h1, h2, h3, h4, h5, h6,
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: 4rem 1rem;
   background: #fff;
 
-  &__inner {
-    text-align: center;
+  /* Everything inherits from here — one font, one size, one weight */
+  p, a, span, div {
     font-family: "Vulf Mono", "Courier New", monospace;
     font-weight: 300;
     font-style: italic;
-    color: #1a1a1a;
-    max-width: 560px;
-    width: 100%;
-  }
-
-  &__divider {
-    font-family: "Vulf Mono", monospace;
-    font-weight: 300;
-    font-style: italic;
-    font-size: 0.75rem;
-    color: #aaa;
-    letter-spacing: 0.02em;
-    margin-bottom: 2.8rem;
-    line-height: 1.7;
-  }
-
-  &__id {
-    font-family: "Vulf Mono", monospace;
-    font-weight: 300;
-    font-style: italic;
-    font-size: 1.05rem;
-    letter-spacing: 0.06em;
-    margin-bottom: 0.8rem;
-    color: #1a1a1a;
-  }
-
-  &__bio {
-    font-family: "Vulf Mono", monospace;
-    font-weight: 300;
-    font-style: italic;
-    font-size: 0.9rem;
-    color: #444;
-    line-height: 1.9;
-    margin-bottom: 2.8rem;
-  }
-
-  &__link {
-    display: inline-block;
-    font-family: "Vulf Mono", monospace;
-    font-weight: 300;
-    font-style: italic;
     font-size: 0.88rem;
-    color: #e74c3c;
+    line-height: 1.9;
+    color: #1a1a1a;
     text-decoration: none;
-    letter-spacing: 0.04em;
+  }
 
-    &::before { content: "→ "; font-style: normal; }
+  &__inner {
+    text-align: center;
+    max-width: 520px;
+    width: 100%;
+    padding: 4rem 1.5rem;
+  }
+
+  /* Color accent helper — mirrors vulfpeck.com red */
+  .red {
+    color: #e74c3c;
+  }
+
+  a {
+    color: inherit;
+    &.red { color: #e74c3c; }
     &:hover { text-decoration: underline; }
   }
 }
