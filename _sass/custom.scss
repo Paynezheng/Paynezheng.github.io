@@ -1,5 +1,57 @@
 /* ============================================
-   Vulf Sans — custom heading font
+   Vulf Mono — landing page font
+   ============================================ */
+
+@font-face {
+  font-family: "Vulf Mono";
+  src: url("/assets/fonts/VulfMonoDemo-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vulf Mono";
+  src: url("/assets/fonts/VulfMonoDemo-LightItalic.woff2") format("woff2");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vulf Mono";
+  src: url("/assets/fonts/VulfMonoDemo-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vulf Mono";
+  src: url("/assets/fonts/VulfMonoDemo-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vulf Mono";
+  src: url("/assets/fonts/VulfMonoDemo-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vulf Mono";
+  src: url("/assets/fonts/VulfMonoDemo-BoldItalic.woff2") format("woff2");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ============================================
+   Vulf Sans — heading font
    ============================================ */
 
 @font-face {
@@ -76,4 +128,68 @@ h1, h2, h3, h4, h5, h6,
 .article-content h5,
 .article-content h6 {
   font-family: "Vulf Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* ============================================
+   Landing page — minimal Vulf Mono style
+   ============================================ */
+
+.landing-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: 4rem 1rem;
+  background: #fff;
+
+  &__inner {
+    text-align: center;
+    font-family: "Vulf Mono", "Courier New", monospace;
+    font-weight: 300;
+    color: #1a1a1a;
+    max-width: 560px;
+    width: 100%;
+  }
+
+  &__divider {
+    font-family: "Vulf Mono", monospace;
+    font-weight: 300;
+    font-size: 0.75rem;
+    color: #999;
+    letter-spacing: 0.02em;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+  }
+
+  &__id {
+    font-family: "Vulf Mono", monospace;
+    font-weight: 400;
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.6rem;
+    color: #1a1a1a;
+  }
+
+  &__bio {
+    font-family: "Vulf Mono", monospace;
+    font-weight: 300;
+    font-style: italic;
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+  }
+
+  &__link {
+    display: inline-block;
+    font-family: "Vulf Mono", monospace;
+    font-weight: 300;
+    font-size: 0.85rem;
+    color: #e74c3c;
+    text-decoration: none;
+    letter-spacing: 0.06em;
+
+    &::before { content: "→ "; }
+    &:hover { text-decoration: underline; }
+  }
 }

@@ -9,17 +9,9 @@ from fontTools.ttLib import TTFont
 
 INPUT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Only convert these weights for headings (keeps repo size small)
-TARGET_FILES = [
-    "VulfSansDemo-Light.otf",
-    "VulfSansDemo-LightItalic.otf",
-    "VulfSansDemo-Regular.otf",
-    "VulfSansDemo-Italic.otf",
-    "VulfSansDemo-Medium.otf",
-    "VulfSansDemo-MediumItalic.otf",
-    "VulfSansDemo-Bold.otf",
-    "VulfSansDemo-BoldItalic.otf",
-]
+# Convert all OTF files in this directory
+import glob
+TARGET_FILES = [os.path.basename(p) for p in glob.glob(os.path.join(INPUT_DIR, "*.otf"))]
 
 converted = 0
 for filename in TARGET_FILES:
